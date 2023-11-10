@@ -35,6 +35,55 @@ spec:
       config.fluentd.fluent.io/enabled: "true"
 `
 
+	FluentdInputSample    fluentdv1alpha1.Fluentd
+	FluentdInputSampleRaw = `
+apiVersion: fluentd.fluent.io/v1alpha1
+kind: Fluentd
+metadata:
+  name: fluentd
+  namespace: fluent
+  labels:
+    app.kubernetes.io/name: fluentd
+spec:
+  globalInputs:
+  - sample:
+      sample: '{"hello": "world"}'
+      tag: "foo.bar"
+      rate: 10
+      size: 10
+      autoIncrementKey: "id"
+  replicas: 1
+  image: kubesphere/fluentd:v1.15.3
+  fluentdCfgSelector:
+    matchLabels:
+      config.fluentd.fluent.io/enabled: "true"
+`
+
+	FluentdInputMonitorAgent    fluentdv1alpha1.Fluentd
+	FluentdInputMonitorAgentRaw = `
+apiVersion: fluentd.fluent.io/v1alpha1
+kind: Fluentd
+metadata:
+name: fluentd
+namespace: fluent
+labels:
+  app.kubernetes.io/name: fluentd
+spec:
+  globalInputs:
+  - monitorAgent:
+      bind: 0.0.0.0
+      port: 24220
+      tag: example
+      emitInterval: 5
+      includeConfig: true
+      includeRetry: true
+  replicas: 1
+  image: kubesphere/fluentd:v1.15.3
+  fluentdCfgSelector:
+    matchLabels:
+      config.fluentd.fluent.io/enabled: "true"
+`
+
 	FluentdInputTail    fluentdv1alpha1.Fluentd
 	FluentdInputTailRaw = `
 apiVersion: fluentd.fluent.io/v1alpha1
@@ -171,6 +220,25 @@ spec:
   filters: 
   - recordTransformer:
       enableRuby: true
+      records:
+      - key: kubernetes_ns
+        value: ${record["kubernetes"]["namespace_name"]}
+`
+
+	FluentdClusterRecordTransformerFilter fluentdv1alpha1.ClusterFilter
+	FluentdClusterRecordTransformerRaw    = `
+apiVersion: fluentd.fluent.io/v1alpha1
+kind: ClusterFilter
+metadata:
+  name: fluentd-filter
+  labels:
+    filter.fluentd.fluent.io/enabled: "true"
+spec:
+  filters:
+  - recordTransformer:
+      enableRuby: true
+      autoTypeCast: true
+      renewRecord: true
       records:
       - key: kubernetes_ns
         value: ${record["kubernetes"]["namespace_name"]}
@@ -532,12 +600,15 @@ func init() {
 		func() {
 			ParseIntoObject(FluentdRaw, &Fluentd)
 			ParseIntoObject(FluentdInputTailRaw, &FluentdInputTail)
+			ParseIntoObject(FluentdInputSampleRaw, &FluentdInputSample)
+			ParseIntoObject(FluentdInputMonitorAgentRaw, &FluentdInputMonitorAgent)
 			ParseIntoObject(FluentdClusterOutputTagRaw, &FluentdClusterOutputTag)
 			ParseIntoObject(FluentdClusterFluentdConfig1Raw, &FluentdClusterFluentdConfig1)
 			ParseIntoObject(FluentdClusterFluentdConfig2Raw, &FluentdClusterFluentdConfig2)
 			ParseIntoObject(FluentdConfigUser1Raw, &FluentdConfigUser1)
 			ParseIntoObject(FluentdConfig1Raw, &FluentdConfig1)
 			ParseIntoObject(FluentdClusterFilter1Raw, &FluentdClusterFilter1)
+			ParseIntoObject(FluentdClusterRecordTransformerRaw, &FluentdClusterRecordTransformerFilter)
 			ParseIntoObject(FluentdClusterOutputClusterRaw, &FluentdClusterOutputCluster)
 			ParseIntoObject(FluentdClusterOutputLogOperatorRaw, &FluentdClusterOutputLogOperator)
 			ParseIntoObject(FluentdClusterOutputBufferRaw, &FluentdClusterOutputBuffer)

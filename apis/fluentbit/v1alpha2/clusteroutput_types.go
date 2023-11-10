@@ -92,10 +92,14 @@ type OutputSpec struct {
 	OpenSearch *output.OpenSearch `json:"opensearch,omitempty"`
 	// OpenTelemetry defines OpenTelemetry Output configuration.
 	OpenTelemetry *output.OpenTelemetry `json:"opentelemetry,omitempty"`
+	// PrometheusExporter_types defines Prometheus exporter configuration to expose metrics from Fluent Bit.
+	PrometheusExporter *output.PrometheusExporter `json:"prometheusExporter,omitempty"`
 	// PrometheusRemoteWrite_types defines Prometheus Remote Write configuration.
 	PrometheusRemoteWrite *output.PrometheusRemoteWrite `json:"prometheusRemoteWrite,omitempty"`
 	// S3 defines S3 Output configuration.
 	S3 *output.S3 `json:"s3,omitempty"`
+	// Gelf defines GELF Output configuration.
+	Gelf *output.Gelf `json:"gelf,omitempty"`
 
 	// CustomPlugin defines Custom Output configuration.
 	CustomPlugin *custom.CustomPlugin `json:"customPlugin,omitempty"`

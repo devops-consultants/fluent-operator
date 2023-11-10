@@ -1,3 +1,76 @@
+## 2.5.0 / 2023-09-13
+### Features
+- Feat: add support to run Fluentd as a DaemonSet (#839)
+- Feat: Add Prometheus exporter output plugin for Fluent Bit (#840)
+- Feat: Add Fluent Bit forward input plugin (#843)
+- Feat: support fluentd grok parser plugin (#861) 
+- Feat: add gelf output plugin to fluentbit (#882) 
+- Feat: add fluentbit opentelemetry plugin (#890) 
+- Feat: Add serviceAccount Annotations to FluentBit resource (#898) 
+- Feat: Add Helm priorityClassName mapping to Fluentd (#902) 
+- Feat: add fluentbit http plugin (#904) 
+- Feat: add fluentbit mqtt plugin (#911) 
+- Feat: add fluentbit collectd plugin (#914) 
+
+### ENHANCEMENT
+- Remove Duplicate Cluster parsers in Fluent-bit config. (#853) 
+- Add option to configure hostNetwork daemonset propertie (#863)
+- Helm chart generation of ClusterOutput for loki (#865) (#906)
+- Add SuppressTypeName option to helm, as newer ES needs it for bulk operation (#869) 
+- Adjusting the parameters of fluentbit (#880) @wenchajun
+- Add an extras section to the chart allowing new and less used features of the CRD to be used from the chart (#889)
+- Add ImagePullSecret for fluentd (#891) 
+- Add compress in fluentbit output es (#899)
+- Expose ports on collector statefulset (#917) 
+- Bump fluentbit to 2.1.9 (#921) 
+- build(deps): Bump github.com/onsi/gomega from 1.27.8 to 1.27.10 (#844) 
+- build(deps): Bump k8s.io/apimachinery from 0.27.3 to 0.27.4 (#847) 
+- build(deps): Bump helm/kind-action from 1.7.0 to 1.8.0 (#859) 
+- build(deps): Bump golang from 1.20.6-alpine3.17 to 1.20.7-alpine3.17 in /cmd/fluent-manager (#860) 
+- build(deps): Bump github.com/go-kit/kit from 0.12.0 to 0.13.0 (#896) 
+- build(deps): Bump golang from 1.20.7-alpine3.17 to 1.21.1-alpine3.17 in /cmd/fluent-manager (#913) 
+
+### BUGFIX 
+- Fix: Fluentd's s3 output plugin is compatible with minio (#858) 
+- Fix: add hostNetwork option (#866) 
+- Fix azure blob name & boolean parameters. (#887) 
+- Fix: fluentd watchedNamespaces Helm mapping (#901) 
+
+## 2.4.0 / 2023-07-19
+### Features
+- Feat: add scheduler support for fluentbit collector (#776)
+- Users can upgrade fluentbit-operator to fluent-operator using the script (#779)
+- Feat: adds the fluentd output plugin for Datadog (#803)
+- Feat: add DefaultFilterSelector and DefaultOutputSelector to fluentd (#804)
+- Feat: add S3 output plugin for Fluent Bit (#819)
+- Support file system as storage layer in service section of fluenbit (#825)
+
+### ENHANCEMENT
+- Introduce stripUnderscores in fluent-operator helm values for fluentbit Input Systemd (#782)
+- Add options in FluentOperator helm chart to add more systemdFilter in Fluentbit Systemd Input and a condition on systemdFilter to enable/disable (#785)
+- Add podSecurityContext for fluentbit in fluent operator helm chart (#788)
+- Rename field podSecurityContext to securityContext in Fluent Operator Deployment (#790)
+- Add fluent operator security context at container level (#792)
+- Add security context for fluenbit container (#796)
+- Specify init container resources for fluent-operator deployment (#817)
+- Update fluentd base Dockerfile (#820)
+- MountPropagation option for internal mounts (#834)
+- Fluent-bit upgrade to v2.1.7 (#836)
+- build(deps): Bump golang from 1.20.4 to 1.20.6 in /docs/best-practice/forwarding-logs-via-http (#831)
+- build(deps): Bump golang from 1.20.5-alpine3.17 to 1.20.6-alpine3.17 in /cmd/fluent-manager (#830)
+- build(deps): Bump k8s.io/apimachinery from 0.27.2 to 0.27.3 (#828)
+- build(deps): Bump golang from 1.20.4-alpine3.17 to 1.20.5-alpine3.17 in /cmd/fluent-manager (#783)
+- build(deps): Bump github.com/onsi/gomega from 1.27.7 to 1.27.8 (#794)
+- build(deps): Bump github.com/go-openapi/errors from 0.20.3 to 0.20.4 (#795)
+
+### BUGFIX 
+- Fix: resource deletion and adoption for 3 controllers (#777)
+- Fix: Correct fluentd prase TimeFormat config key (#780)
+- Fixes #798 storageClassName field not taken into account (#799)
+- Fix: plugins document index (#822)
+- Update the _helpers.tpl file (#823)
+- Fix: incorrect field names in fluentd buffer plugin (#824)
+
 ## 2.3.0 / 2023-06-05
 ### Features
 - Feat: Adding influxdb plugin (#690)

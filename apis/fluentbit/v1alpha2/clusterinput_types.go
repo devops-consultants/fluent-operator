@@ -53,6 +53,24 @@ type InputSpec struct {
 	FluentBitMetrics *input.FluentbitMetrics `json:"fluentBitMetrics,omitempty"`
 	// CustomPlugin defines Custom Input configuration.
 	CustomPlugin *custom.CustomPlugin `json:"customPlugin,omitempty"`
+	// Forward defines forward  input plugin configuration
+	Forward *input.Forward `json:"forward,omitempty"`
+	// OpenTelemetry defines the OpenTelemetry input plugin configuration
+	OpenTelemetry *input.OpenTelemetry `json:"openTelemetry,omitempty"`
+	// HTTP defines the HTTP input plugin configuration
+	HTTP *input.HTTP `json:"http,omitempty"`
+	// MQTT defines the MQTT input plugin configuration
+	MQTT *input.MQTT `json:"mqtt,omitempty"`
+	// Collectd defines the Collectd input plugin configuration
+	Collectd *input.Collectd `json:"collectd,omitempty"`
+	// StatsD defines the StatsD input plugin configuration
+	StatsD *input.StatsD `json:"statsd,omitempty"`
+	// Nginx defines the Nginx input plugin configuration
+	Nginx *input.Nginx `json:"nginx,omitempty"`
+	// Syslog defines the Syslog input plugin configuration
+	Syslog *input.Syslog `json:"syslog,omitempty"`
+	// TCP defines the TCP input plugin configuration
+	TCP *input.TCP `json:"tcp,omitempty"`
 }
 
 // +kubebuilder:object:root=true

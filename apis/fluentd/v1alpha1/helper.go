@@ -39,10 +39,12 @@ type PluginResources struct {
 // +kubebuilder:object:generate=false
 // All the filter/output selected to this cfg
 type CfgResources struct {
+	InputPlugins  []params.PluginStore
 	FilterPlugins []params.PluginStore
 	OutputPlugins []params.PluginStore
 
 	// the hash codes used to depulicate removel
+	InputsHashcodes  map[string]bool
 	FiltersHashcodes map[string]bool
 	OutputsHashcodes map[string]bool
 }
@@ -88,6 +90,7 @@ func NewCfgResources() *CfgResources {
 		FilterPlugins: make([]params.PluginStore, 0),
 		OutputPlugins: make([]params.PluginStore, 0),
 
+		InputsHashcodes:  make(map[string]bool),
 		FiltersHashcodes: make(map[string]bool),
 		OutputsHashcodes: make(map[string]bool),
 	}
@@ -138,6 +141,7 @@ func (pgr *PluginResources) BuildCfgRouter(cfg Renderer) (*fluentdRouter.Route, 
 func (pgr *PluginResources) PatchAndFilterClusterLevelResources(
 	sl plugins.SecretLoader,
 	cfgId string,
+	clusterInputs []ClusterInput,
 	clusterfilters []ClusterFilter,
 	clusteroutputs []ClusterOutput,
 ) (*CfgResources, []string) {
@@ -145,6 +149,15 @@ func (pgr *PluginResources) PatchAndFilterClusterLevelResources(
 	cfgResources := NewCfgResources()
 
 	errs := make([]string, 0)
+
+	// List all inputs matching the label selector.
+	for _, i := range clusterInputs {
+		// patch filterId
+		err := cfgResources.filterForInputs(cfgId, "cluster", i.Name, "clusterinput", sl, i.Spec.Inputs)
+		if err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
 
 	// List all filters matching the label selector.
 	for _, i := range clusterfilters {
@@ -172,6 +185,7 @@ func (pgr *PluginResources) PatchAndFilterClusterLevelResources(
 func (pgr *PluginResources) PatchAndFilterNamespacedLevelResources(
 	sl plugins.SecretLoader,
 	cfgId string,
+	inputs []Input,
 	filters []Filter,
 	outputs []Output,
 ) (*CfgResources, []string) {
@@ -179,6 +193,15 @@ func (pgr *PluginResources) PatchAndFilterNamespacedLevelResources(
 	cfgResources := NewCfgResources()
 
 	errs := make([]string, 0)
+
+	// List all inputs matching the label selector.
+	for _, i := range inputs {
+		// patch filterId
+		err := cfgResources.filterForInputs(cfgId, i.Namespace, i.Name, "filter", sl, i.Spec.Inputs)
+		if err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
 
 	// List all filters matching the label selector.
 	for _, i := range filters {
@@ -199,6 +222,35 @@ func (pgr *PluginResources) PatchAndFilterNamespacedLevelResources(
 	}
 
 	return cfgResources, errs
+}
+
+func (r *CfgResources) filterForInputs(
+	cfgId, namespace, name, crdtype string,
+	sl plugins.SecretLoader,
+	inputs []input.Input,
+) error {
+	for n, input := range inputs {
+		inputId := fmt.Sprintf("%s::%s::%s::%s-%d", cfgId, namespace, crdtype, name, n)
+		input.InputCommon.Id = &inputId
+		// if input.InputCommon.Tag == nil {
+		// 	input.InputCommon.Tag = &params.DefaultTag
+		// }
+
+		ps, err := input.Params(sl)
+		if err != nil {
+			return err
+		}
+
+		hashcode := ps.Hash()
+		if _, ok := r.InputsHashcodes[hashcode]; ok {
+			continue
+		}
+
+		r.InputsHashcodes[hashcode] = true
+		r.InputPlugins = append(r.InputPlugins, *ps)
+	}
+
+	return nil
 }
 
 func (r *CfgResources) filterForFilters(
@@ -261,9 +313,12 @@ func (r *CfgResources) filterForOutputs(
 
 // convert the cfg plugins to a label plugin, appends to the global label plugins
 func (pgr *PluginResources) WithCfgResources(cfgRouteLabel string, r *CfgResources) error {
-	if len(r.FilterPlugins) == 0 && len(r.OutputPlugins) == 0 {
+	if len(r.InputPlugins) == 0 && len(r.FilterPlugins) == 0 && len(r.OutputPlugins) == 0 {
 		return errors.New("no filter plugins and no output plugins matched")
 	}
+
+	// insert input plugins of this fluentd config
+	pgr.InputPlugins = append(pgr.InputPlugins, r.InputPlugins...)
 
 	cfgLabelPlugin := params.NewPluginStore("label")
 	cfgLabelPlugin.Tag = cfgRouteLabel

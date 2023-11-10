@@ -11,13 +11,13 @@ import (
 	"github.com/fluent/fluent-operator/v2/pkg/constants"
 )
 
-func MakeStatefulset(fd fluentdv1alpha1.Fluentd) *appsv1.StatefulSet {
+func MakeStatefulSet(fd fluentdv1alpha1.Fluentd) *appsv1.StatefulSet {
 	replicas := *fd.Spec.Replicas
 	if replicas == 0 {
 		replicas = 1
 	}
 
-	ports := makeStatefulsetPorts(fd)
+	ports := makeFluentdPorts(fd)
 
 	labels := map[string]string{
 		"app.kubernetes.io/name":      fd.Name,
@@ -88,6 +88,8 @@ func MakeStatefulset(fd fluentdv1alpha1.Fluentd) *appsv1.StatefulSet {
 									Value: constants.BufferMountPath,
 								},
 							},
+							ReadinessProbe: fd.Spec.ReadinessProbe,
+							LivenessProbe:  fd.Spec.LivenessProbe,
 						},
 					},
 					NodeSelector: fd.Spec.NodeSelector,
@@ -181,7 +183,7 @@ func MakeStatefulset(fd fluentdv1alpha1.Fluentd) *appsv1.StatefulSet {
 	return &sts
 }
 
-func makeStatefulsetPorts(fd fluentdv1alpha1.Fluentd) []corev1.ContainerPort {
+func makeFluentdPorts(fd fluentdv1alpha1.Fluentd) []corev1.ContainerPort {
 	ports := []corev1.ContainerPort{
 		{
 			Name:          constants.MetricsName,

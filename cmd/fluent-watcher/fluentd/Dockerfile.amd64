@@ -37,6 +37,7 @@ RUN apk update \
  && gem install fluent-plugin-detect-exceptions -v 0.0.14 \
  && gem install \
          fluent-plugin-s3 \
+         fluent-plugin-grok-parser \
          fluent-plugin-rewrite-tag-filter \
          fluent-plugin-oss \
          fluent-plugin-dedot_filter \
@@ -50,6 +51,7 @@ RUN apk update \
          fluent-plugin-grafana-loki \
          fluent-plugin-cloudwatch-logs \
          fluent-plugin-datadog \
+         fluent-plugin-prometheus \
  && apk del .build-deps \
  && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem /usr/lib/ruby/gems/2.*/gems/fluentd-*/test
 

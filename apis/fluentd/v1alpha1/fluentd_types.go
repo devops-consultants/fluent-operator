@@ -36,6 +36,8 @@ const (
 type FluentdSpec struct {
 	// Fluentd global inputs.
 	GlobalInputs []input.Input `json:"globalInputs,omitempty"`
+	// Select cluster input plugins used to gather the default cluster output
+	DefaultInputSelector *metav1.LabelSelector `json:"defaultInputSelector,omitempty"`
 	// Select cluster filter plugins used to filter for the default cluster output
 	DefaultFilterSelector *metav1.LabelSelector `json:"defaultFilterSelector,omitempty"`
 	// Select cluster output plugins used to send all logs that did not match any route to the matching outputs
@@ -43,6 +45,7 @@ type FluentdSpec struct {
 	// By default will build the related service according to the globalinputs definition.
 	DisableService bool `json:"disableService,omitempty"`
 	// Numbers of the Fluentd instance
+	// Applicable when the mode is "collector", and will be ignored when the mode is "agent"
 	Replicas *int32 `json:"replicas,omitempty"`
 	// Numbers of the workers in Fluentd instance
 	Workers *int32 `json:"workers,omitempty"`
@@ -92,6 +95,7 @@ type FluentdSpec struct {
 	// claims in a way that maintains the identity of a pod. Every claim in
 	// this list must have at least one matching (by name) volumeMount in one
 	// container in the template.
+	// Applicable when the mode is "collector", and will be ignored when the mode is "agent"
 	VolumeClaimTemplates []corev1.PersistentVolumeClaim `json:"volumeClaimTemplates,omitempty"`
 	// Service represents configurations on the fluentd service.
 	Service FluentDService `json:"service,omitempty"`
@@ -108,6 +112,19 @@ type FluentdSpec struct {
 	MetricsPort *int32 `json:"metricsPort,omitempty"`
 	// MetricsBind is the host for metrics to listen on, default is "0.0.0.0"
 	MetricsBind *string `json:"metricsBind,omitempty"`
+	// Mode to determine whether to run Fluentd as collector or agent.
+	// +kubebuilder:validation:Enum:=collector;agent
+	// +kubebuilder:default:=collector
+	Mode string `json:"mode,omitempty"`
+	// ContainerSecurityContext represents the security context for the fluentd container.
+	ContainerSecurityContext *corev1.SecurityContext `json:"containerSecurityContext,omitempty"`
+	// Storage for position db. You will use it if tail input is enabled.
+	// Applicable when the mode is "agent", and will be ignored when the mode is "collector"
+	PositionDB corev1.VolumeSource `json:"positionDB,omitempty"`
+	// LivenessProbe represents the liveness probe for the fluentd container.
+	LivenessProbe *corev1.Probe `json:"livenessProbe,omitempty"`
+	// ReadinessProbe represents the readiness probe for the fluentd container.
+	ReadinessProbe *corev1.Probe `json:"readinessProbe,omitempty"`
 }
 
 // FluentDService the service of the FluentD
